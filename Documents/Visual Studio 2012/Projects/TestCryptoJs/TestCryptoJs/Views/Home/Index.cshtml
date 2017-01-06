@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+@model TestCryptoJs.Models.ModelEncr
+
+<h2>Index</h2>
+
+<button class="btn btn-primary" id="btnShowKey">Encrypt with Server Key</button>
+<button class="btn btn-primary" id="btnGenKeys">Generate Keys</button>
+<button class="btn btn-primary" id="btnEncrypt">Encrypt</button>
+<button class="btn btn-primary" id="btnDecrypt">Decrypt</button>
+<br /><br />
+<input type="text" id="txtEncrypt" placeholder="Type your text" />
+<br /><br />
+<p id="serverKey" class="alert alert-success" style="width: 80%; word-wrap: break-word">
+</p>
+<p id="result" class="alert alert-info" style="width: 80%; word-wrap: break-word"></p>
+
+<input type="submit" id="btnSubmit" class="btn btn-primary" value="Submit" />
+
+<script src="~/Scripts/cryptico.js"></script>
+<script src="~/Scripts/Index.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var encrKey = {}, serverKey = '@ViewBag.ServerKey', publicKey = '';
+
+        $("#btnShowKey").click(function (event) {
+            showKey("Server key: " + serverKey);
+            var encrText = cryptico.encrypt($("#txtEncrypt").val(), serverKey).cipher;
+            $("#result").text(encrText);
+        });
+
+        $("#btnGenKeys").click(function (event) {
+            encrKey = generateKeys("My password phrase");
+            publicKey = cryptico.publicKeyString(encrKey);
+            showKey(publicKey);
+        });
+
+        $("#btnEncrypt").click(function (event) {
+            var encrText = encrypt(publicKey, $("#txtEncrypt").val());
+            $("#result").text(encrText);
+        });
+
+        $("#btnDecrypt").click(function (event) {
+            var decrText = decrypt(encrKey, $("#result").text());
+            $("#result").text(decrText);
+        });
+
+        $("#btnSubmit").click(function (event) {
+            var url = "@Url.Content("Home/Submit/")";
+            var data = {
+                encrValue: $("#result").text()
+            };
+            $.post(url, data, function (result) {
+                alert(result);
+            }).fail(function () {
+                alert('failed');
+            });
+        });
+    });
+
+</script>
